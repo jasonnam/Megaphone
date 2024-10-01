@@ -44,6 +44,21 @@ final class DarwinNotificationCenterTests: XCTestCase {
         }
 
         DarwinNotificationCenter.default.post(name: notificationName)
+        
+        waitForExpectations(timeout: 1, handler: nil)
+    }
+    
+    func testAddObserverNameStruct() {
+        let notificationName: DarwinNotification.Name = .testAddObserver
+        
+        let expectationName = self.expectation(description: "Observe test notification with notification name struct")
+        
+        DarwinNotificationCenter.default.addObserver(forName: notificationName) { name in
+            XCTAssertEqual(name, notificationName.rawValue)
+            expectationName.fulfill()
+        }
+
+        DarwinNotificationCenter.default.post(name: notificationName)
 
         waitForExpectations(timeout: 1, handler: nil)
     }
@@ -52,6 +67,23 @@ final class DarwinNotificationCenterTests: XCTestCase {
         let notificationName = "testRemoveObserver"
 
         let expectation = self.expectation(description: "Should not observe test notification")
+        expectation.isInverted = true
+
+        DarwinNotificationCenter.default.addObserver(forName: notificationName) { _ in
+            expectation.fulfill()
+        }
+
+        DarwinNotificationCenter.default.removeObserver(withName: notificationName)
+
+        DarwinNotificationCenter.default.post(name: notificationName)
+
+        waitForExpectations(timeout: 1, handler: nil)
+    }
+    
+    func testRemoveObserverNameStruct() {
+        let notificationName: DarwinNotification.Name = .testRemoveObserver
+
+        let expectation = self.expectation(description: "Should not observe test notification with notification name struct")
         expectation.isInverted = true
 
         DarwinNotificationCenter.default.addObserver(forName: notificationName) { _ in
@@ -88,4 +120,35 @@ final class DarwinNotificationCenterTests: XCTestCase {
 
         waitForExpectations(timeout: 1, handler: nil)
     }
+    
+    func testRemoveAllObserversNameStruct() {
+        let notificationName1: DarwinNotification.Name = .testRemoveAllObservers1
+        let notificationName2: DarwinNotification.Name = .testRemoveAllObservers2
+        
+        let expectation1 = expectation(description: "Should not observe test notification 1 with notification name struct")
+        expectation1.isInverted = true
+        let expectation2 = expectation(description: "Should not observe test notification 2 with notification name struct")
+        expectation2.isInverted = true
+
+        DarwinNotificationCenter.default.addObserver(forName: notificationName1) { _ in
+            expectation1.fulfill()
+        }
+        DarwinNotificationCenter.default.addObserver(forName: notificationName2) { _ in
+            expectation2.fulfill()
+        }
+
+        DarwinNotificationCenter.default.removeAllObservers()
+
+        DarwinNotificationCenter.default.post(name: notificationName1)
+        DarwinNotificationCenter.default.post(name: notificationName2)
+
+        waitForExpectations(timeout: 1, handler: nil)
+    }
+}
+
+extension DarwinNotification.Name {
+    static let testAddObserver = DarwinNotification.Name("testAddObserver_nameStruct")
+    static let testRemoveObserver = DarwinNotification.Name("testRemoveObserver_nameStruct")
+    static let testRemoveAllObservers1 = DarwinNotification.Name("testRemoveAllObservers1_nameStruct")
+    static let testRemoveAllObservers2 = DarwinNotification.Name("testRemoveAllObservers2_nameStruct")
 }

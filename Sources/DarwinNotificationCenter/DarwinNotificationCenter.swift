@@ -48,6 +48,10 @@ public class DarwinNotificationCenter {
             .deliverImmediately
         )
     }
+    
+    public func addObserver(forName name: DarwinNotification.Name, using block: @escaping (String) -> Void) {
+        addObserver(forName: name.rawValue, using: block)
+    }
 
     public func removeObserver(withName name: String) {
         observations.removeValue(forKey: name)
@@ -58,6 +62,10 @@ public class DarwinNotificationCenter {
             CFNotificationName(name as CFString),
             nil
         )
+    }
+    
+    public func removeObserver(withName name: DarwinNotification.Name) {
+        removeObserver(withName: name.rawValue)
     }
 
     public func removeAllObservers() {
@@ -75,5 +83,9 @@ public class DarwinNotificationCenter {
             nil,
             true
         )
+    }
+    
+    public func post(name: DarwinNotification.Name) {
+        post(name: name.rawValue)
     }
 }
